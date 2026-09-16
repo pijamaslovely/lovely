@@ -250,6 +250,10 @@
       renderLinkEditor(el, bodyEl);
     } else if (cmsType === 'card') {
       renderCardEditor(el, bodyEl);
+    } else if (cmsType === 'feature-card') {
+      renderFeatureCardEditor(el, bodyEl);
+    } else if (cmsType === 'legal-card') {
+      renderLegalCardEditor(el, bodyEl);
     } else {
       renderTextEditor(el, bodyEl);
     }
@@ -259,6 +263,8 @@
 
   function detectElementType(el) {
     if (el.tagName === 'IMG') return 'image';
+    if (el.classList.contains('feature-card')) return 'feature-card';
+    if (el.classList.contains('legal-card')) return 'legal-card';
     if (el.tagName === 'A' || el.classList.contains('product-wa-btn') || el.classList.contains('cta-btn-wa')) return 'link';
     if (el.classList.contains('product-card')) return 'card';
     return 'text';
@@ -814,6 +820,109 @@
 
       closeModal();
       showToast('✅ Producto actualizado con éxito.', 'success');
+    };
+  }
+
+  // 5. Editor de Tarjeta de Beneficios (Nosotras / Características)
+  function renderFeatureCardEditor(el, container) {
+    const iconEl = el.querySelector('.feature-icon');
+    const titleEl = el.querySelector('h3');
+    const descEl = el.querySelector('p');
+
+    const iconVal = iconEl ? iconEl.textContent.trim() : '✨';
+    const titleVal = titleEl ? titleEl.textContent.trim() : '';
+    const descVal = descEl ? descEl.textContent.trim() : '';
+
+    const popularIcons = ['🚚', '✨', '💬', '🏪', '🎀', '💳', '💖', '🎁', '⭐', '📦', '👗', '⚡', '🌸', '🧵', '💯'];
+
+    container.innerHTML = `
+      <div class="cms-form-group">
+        <label class="cms-form-label">Ícono / Emoji del beneficio:</label>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <input type="text" id="cms-feat-icon" class="cms-input" value="${escapeHtml(iconVal)}" style="width:70px; font-size:1.5rem; text-align:center; padding:6px;"/>
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            ${popularIcons.map(ic => `<button type="button" class="cms-btn cms-btn-preview" style="padding:4px 8px; font-size:1.1rem;" onclick="document.getElementById('cms-feat-icon').value='${ic}'">${ic}</button>`).join('')}
+          </div>
+        </div>
+      </div>
+      <div class="cms-form-group">
+        <label class="cms-form-label">Título del beneficio:</label>
+        <input type="text" id="cms-feat-title" class="cms-input" value="${escapeHtml(titleVal)}"/>
+      </div>
+      <div class="cms-form-group">
+        <label class="cms-form-label">Descripción:</label>
+        <textarea id="cms-feat-desc" class="cms-textarea" rows="4">${escapeHtml(descVal)}</textarea>
+      </div>
+    `;
+
+    document.getElementById('cms-modal-save-btn').onclick = function () {
+      if (iconEl) iconEl.textContent = document.getElementById('cms-feat-icon').value.trim() || '✨';
+      if (titleEl) titleEl.textContent = document.getElementById('cms-feat-title').value.trim();
+      if (descEl) descEl.textContent = document.getElementById('cms-feat-desc').value.trim();
+      closeModal();
+      showToast('✅ Beneficio actualizado con éxito.', 'success');
+    };
+  }
+
+  // 6. Editor de Tarjetas Legales y Políticas
+  function renderLegalCardEditor(el, container) {
+    const iconEl = el.querySelector('.legal-card-icon');
+    const titleEl = el.querySelector('h4');
+    const descEl = el.querySelector('p');
+    const targetId = el.getAttribute('data-cms-target');
+
+    const iconVal = iconEl ? iconEl.textContent.trim() : '📋';
+    const titleVal = titleEl ? titleEl.textContent.trim() : '';
+    const descVal = descEl ? descEl.textContent.trim() : '';
+
+    const popularIcons = ['📋', '🔒', '🛡️', '🚚', '🔄', '↩️', '📨', '⚖️', '📄', '✅'];
+
+    // Obtener texto completo de la política si existe el contenedor legal
+    let policyContentEl = targetId ? document.querySelector('#' + targetId + ' .legal-content') : null;
+    let policyHtml = policyContentEl ? policyContentEl.innerHTML.trim() : '';
+
+    container.innerHTML = `
+      <div class="cms-form-group">
+        <label class="cms-form-label">Ícono / Emoji de la tarjeta:</label>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <input type="text" id="cms-legal-icon" class="cms-input" value="${escapeHtml(iconVal)}" style="width:70px; font-size:1.5rem; text-align:center; padding:6px;"/>
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            ${popularIcons.map(ic => `<button type="button" class="cms-btn cms-btn-preview" style="padding:4px 8px; font-size:1.1rem;" onclick="document.getElementById('cms-legal-icon').value='${ic}'">${ic}</button>`).join('')}
+          </div>
+        </div>
+      </div>
+      <div class="cms-form-group">
+        <label class="cms-form-label">Título de la política / tarjeta:</label>
+        <input type="text" id="cms-legal-title" class="cms-input" value="${escapeHtml(titleVal)}"/>
+      </div>
+      <div class="cms-form-group">
+        <label class="cms-form-label">Resumen corto (visible en la tarjeta):</label>
+        <input type="text" id="cms-legal-desc" class="cms-input" value="${escapeHtml(descVal)}"/>
+      </div>
+
+      ${policyContentEl ? `
+      <div style="margin-top:16px; border-top:1.5px solid #fce4f0; padding-top:14px;">
+        <label class="cms-form-label" style="display:flex; justify-content:space-between; align-items:center;">
+          <span>📜 Documento completo de esta política:</span>
+          <span style="font-size:0.75rem; color:#888;">(Ventana emergente)</span>
+        </label>
+        <textarea id="cms-legal-full-doc" class="cms-textarea" rows="8" style="font-size:0.85rem; font-family:monospace;">${escapeHtml(policyHtml)}</textarea>
+        <div class="cms-form-help">Puedes modificar los artículos, plazos o condiciones legales completas que ven los clientes al hacer clic.</div>
+      </div>
+      ` : ''}
+    `;
+
+    document.getElementById('cms-modal-save-btn').onclick = function () {
+      if (iconEl) iconEl.textContent = document.getElementById('cms-legal-icon').value.trim() || '📋';
+      if (titleEl) titleEl.textContent = document.getElementById('cms-legal-title').value.trim();
+      if (descEl) descEl.textContent = document.getElementById('cms-legal-desc').value.trim();
+
+      if (policyContentEl && document.getElementById('cms-legal-full-doc')) {
+        policyContentEl.innerHTML = document.getElementById('cms-legal-full-doc').value;
+      }
+
+      closeModal();
+      showToast('✅ Información legal actualizada.', 'success');
     };
   }
 
