@@ -15,17 +15,33 @@
     githubToken: ''
   };
 
+  // Función para limpiar y extraer tokens de GitHub válidos sin espacios, comillas o palabras extra
+  function sanitizeGitHubToken(raw) {
+    if (!raw) return '';
+    let token = String(raw).trim();
+    token = token.replace(/^(token|bearer)\s*[:=]?\s*/i, '');
+    token = token.replace(/^["']|["']$/g, '');
+    const match = token.match(/(ghp_[a-zA-Z0-9]{36}|github_pat_[a-zA-Z0-9_]{82})/);
+    if (match) return match[1];
+    return token.trim();
+  }
+
   // Cargar configuración guardada
   function getConfig() {
     try {
       const saved = localStorage.getItem('lovely_cms_config');
-      return saved ? Object.assign({}, DEFAULT_CONFIG, JSON.parse(saved)) : Object.assign({}, DEFAULT_CONFIG);
+      const cfg = saved ? Object.assign({}, DEFAULT_CONFIG, JSON.parse(saved)) : Object.assign({}, DEFAULT_CONFIG);
+      cfg.githubToken = sanitizeGitHubToken(cfg.githubToken);
+      return cfg;
     } catch (e) {
       return Object.assign({}, DEFAULT_CONFIG);
     }
   }
 
   function saveConfig(cfg) {
+    if (cfg && cfg.githubToken) {
+      cfg.githubToken = sanitizeGitHubToken(cfg.githubToken);
+    }
     localStorage.setItem('lovely_cms_config', JSON.stringify(cfg));
   }
 
