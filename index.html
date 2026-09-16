@@ -731,11 +731,11 @@
 
     .ig-header-wrap {
       display: flex;
-      flex-wrap: wrap;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 24px;
-      margin-bottom: 40px;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 16px;
+      margin-bottom: 36px;
     }
 
     .ig-profile-badge {
@@ -1163,18 +1163,18 @@
     <div class="ig-header-wrap">
       <div>
         <span class="section-label" data-cms="ig-label" data-cms-label="Etiqueta Instagram">📸 En Vivo en Instagram</span>
-        <h2 class="section-title" data-cms="ig-title" data-cms-label="Título Instagram">Comunidad Lovely en <em>Instagram</em></h2>
-        <p class="section-desc" data-cms="ig-desc" data-cms-label="Descripción Instagram" style="margin-bottom:0;">
+        <h2 class="section-title" data-cms="ig-title" data-cms-label="Título Instagram" style="margin-left:auto; margin-right:auto;">Comunidad Lovely en <em>Instagram</em></h2>
+        <p class="section-desc" data-cms="ig-desc" data-cms-label="Descripción Instagram" style="margin: 0 auto; max-width: 600px;">
           Descubre nuevos lanzamientos, clientas felices, outfits y transmisiones en vivo directamente desde nuestro feed oficial.
         </p>
       </div>
 
-      <!-- Tarjeta de Perfil Estilo Instagram -->
+      <!-- Tarjeta de Perfil Estilo Instagram Centrada -->
       <a href="https://www.instagram.com/pijamas.lovelycolombia" target="_blank" rel="noopener" class="ig-profile-badge" data-cms="ig-profile-badge" data-cms-label="Tarjeta Perfil Instagram" data-cms-type="link">
         <div class="ig-avatar-ring">
           <img src="logo.png" alt="Lovely Store Pijamas" class="ig-avatar-img">
         </div>
-        <div class="ig-badge-info">
+        <div class="ig-badge-info" style="text-align: left;">
           <h4>
             <span>pijamas.lovelycolombia</span>
             <svg viewBox="0 0 24 24" fill="#0095f6" width="16" height="16" style="vertical-align:middle;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
