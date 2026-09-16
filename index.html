@@ -730,76 +730,11 @@
     }
 
     .ig-header-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
       text-align: center;
-      gap: 16px;
-      margin-bottom: 36px;
+      margin-bottom: 28px;
     }
 
-    .ig-profile-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 14px;
-      background: white;
-      padding: 10px 22px 10px 12px;
-      border-radius: 50px;
-      box-shadow: 0 6px 24px rgba(233,30,140,0.09);
-      border: 1.5px solid #fce4f0;
-      text-decoration: none;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .ig-profile-badge:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 30px rgba(233,30,140,0.18);
-      border-color: #f48dc1;
-    }
-
-    .ig-avatar-ring {
-      width: 48px; height: 48px;
-      border-radius: 50%;
-      padding: 2.5px;
-      background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 10px rgba(220, 39, 67, 0.3);
-    }
-    .ig-avatar-img {
-      width: 100%; height: 100%;
-      border-radius: 50%;
-      object-fit: cover;
-      background: white;
-      border: 2px solid white;
-    }
-
-    .ig-badge-info h4 {
-      font-size: 0.95rem;
-      font-weight: 800;
-      color: var(--dark);
-      margin: 0;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .ig-badge-info p {
-      font-size: 0.78rem;
-      color: var(--gray);
-      margin: 2px 0 0;
-    }
-    .ig-follow-pill {
-      background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
-      color: white;
-      font-size: 0.75rem;
-      font-weight: 800;
-      padding: 7px 15px;
-      border-radius: 20px;
-      margin-left: 8px;
-      letter-spacing: 0.02em;
-    }
-
-    /* Muro de Instagram en Vivo (Ancho Completo) */
+    /* Muro de Instagram en Vivo (Ancho Completo y Scroll Habilitado) */
     .ig-wall-layout {
       width: 100%;
       max-width: 980px;
@@ -846,14 +781,16 @@
     }
     .ig-iframe-embed {
       width: 100%;
-      height: 640px;
+      height: 780px;
       border: none;
       background: white;
       display: block;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     .ig-bottom-bar {
-      margin-top: 36px;
+      margin-top: 32px;
       text-align: center;
     }
     .ig-main-btn {
@@ -878,8 +815,7 @@
 
     /* ===== RESPONSIVE ===== */
     @media (max-width: 768px) {
-      .ig-iframe-embed { height: 560px; }
-      .ig-header-wrap { flex-direction: column; align-items: flex-start; }
+      .ig-iframe-embed { height: 680px; }
       .navbar-links { display: none; }
       .navbar-hamburger { display: flex; }
       .hero { height: min(75vh, 550px); }
@@ -889,7 +825,7 @@
       .products-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
     }
     @media (max-width: 480px) {
-      .ig-iframe-embed { height: 520px; }
+      .ig-iframe-embed { height: 600px; }
       section { padding: 52px 16px; }
       .hero { height: 70vh; }
       .cta-btn-group { flex-direction: column; align-items: center; }
@@ -1161,31 +1097,14 @@
 <section id="instagram" class="instagram-section fade-up">
   <div class="section-inner">
     <div class="ig-header-wrap">
-      <div>
-        <span class="section-label" data-cms="ig-label" data-cms-label="Etiqueta Instagram">📸 En Vivo en Instagram</span>
-        <h2 class="section-title" data-cms="ig-title" data-cms-label="Título Instagram" style="margin-left:auto; margin-right:auto;">Comunidad Lovely en <em>Instagram</em></h2>
-        <p class="section-desc" data-cms="ig-desc" data-cms-label="Descripción Instagram" style="margin: 0 auto; max-width: 600px;">
-          Descubre nuevos lanzamientos, clientas felices, outfits y transmisiones en vivo directamente desde nuestro feed oficial.
-        </p>
-      </div>
-
-      <!-- Tarjeta de Perfil Estilo Instagram Centrada -->
-      <a href="https://www.instagram.com/pijamas.lovelycolombia" target="_blank" rel="noopener" class="ig-profile-badge" data-cms="ig-profile-badge" data-cms-label="Tarjeta Perfil Instagram" data-cms-type="link">
-        <div class="ig-avatar-ring">
-          <img src="logo.png" alt="Lovely Store Pijamas" class="ig-avatar-img">
-        </div>
-        <div class="ig-badge-info" style="text-align: left;">
-          <h4>
-            <span>pijamas.lovelycolombia</span>
-            <svg viewBox="0 0 24 24" fill="#0095f6" width="16" height="16" style="vertical-align:middle;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-          </h4>
-          <p>+20.9k seguidoras · Tienda en Cali</p>
-        </div>
-        <span class="ig-follow-pill">Seguir</span>
-      </a>
+      <span class="section-label" data-cms="ig-label" data-cms-label="Etiqueta Instagram">📸 En Vivo en Instagram</span>
+      <h2 class="section-title" data-cms="ig-title" data-cms-label="Título Instagram" style="margin: 0 auto 10px;">Comunidad Lovely en <em>Instagram</em></h2>
+      <p class="section-desc" data-cms="ig-desc" data-cms-label="Descripción Instagram" style="margin: 0 auto; max-width: 580px;">
+        Descubre nuevos lanzamientos, clientas felices, outfits y transmisiones en vivo directamente desde nuestro feed oficial.
+      </p>
     </div>
 
-    <!-- Muro de Instagram Oficial en Tiempo Real (Ancho Completo) -->
+    <!-- Muro de Instagram Oficial en Tiempo Real (Ancho Completo y con Scroll) -->
     <div class="ig-wall-layout">
       <div class="ig-live-frame-box">
         <div class="ig-live-frame-header">
@@ -1196,7 +1115,7 @@
           class="ig-iframe-embed"
           src="https://www.instagram.com/pijamas.lovelycolombia/embed/" 
           title="Muro en Vivo de Instagram - Lovely Store Pijamas"
-          scrolling="no" 
+          scrolling="yes" 
           allowtransparency="true" 
           frameborder="0">
         </iframe>
