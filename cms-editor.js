@@ -972,34 +972,101 @@
     bodyEl.innerHTML = `
       <div class="cms-form-group">
         <label class="cms-form-label">Clave / PIN de Administrador:</label>
-        <input type="password" id="cms-cfg-pin" class="cms-input" value="${config.adminPin}"/>
+        <input type="password" id="cms-cfg-pin" class="cms-input" value="${escapeHtml(config.adminPin)}"/>
         <div class="cms-form-help">Usa este PIN para iniciar sesión en el modo edición.</div>
       </div>
       <hr style="border:0; border-top:1px solid #fce4f0; margin:16px 0;"/>
       <h4 style="margin:0 0 8px; color:var(--cms-primary-dark); font-size:0.95rem;">🚀 Publicación Automática en GitHub Pages</h4>
       <div class="cms-form-group">
         <label class="cms-form-label">Repositorio de GitHub (usuario/repo):</label>
-        <input type="text" id="cms-cfg-repo" class="cms-input" value="${config.githubRepo}"/>
+        <input type="text" id="cms-cfg-repo" class="cms-input" value="${escapeHtml(config.githubRepo)}"/>
       </div>
       <div class="cms-form-group">
         <label class="cms-form-label">Rama principal:</label>
-        <input type="text" id="cms-cfg-branch" class="cms-input" value="${config.githubBranch}"/>
+        <input type="text" id="cms-cfg-branch" class="cms-input" value="${escapeHtml(config.githubBranch)}"/>
       </div>
       <div class="cms-form-group">
         <label class="cms-form-label">Token de GitHub (Personal Access Token):</label>
-        <input type="password" id="cms-cfg-token" class="cms-input" value="${config.githubToken}" placeholder="ghp_xxxxxxxxxxxxxx"/>
-        <div class="cms-form-help">
-          Permite que el botón "Publicar en la Web" guarde los cambios directamente en tu GitHub sin tocar código.
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input type="password" id="cms-cfg-token" class="cms-input" value="${escapeHtml(config.githubToken)}" placeholder="ghp_xxxxxxxxxxxxxx" style="flex:1; font-family:monospace; font-size:0.85rem;"/>
+          <button type="button" id="cms-cfg-toggle-token" class="cms-btn cms-btn-preview" style="padding:10px 14px; font-size:1.05rem;" title="Mostrar / Ocultar Token">👁️</button>
+          <button type="button" id="cms-cfg-test-token" class="cms-btn cms-btn-preview" style="padding:10px 14px; font-size:0.85rem; white-space:nowrap; background:#f0fdf4; border:1px solid #86efac; color:#166534; font-weight:700;" title="Verificar si este token funciona">🔍 Probar</button>
+        </div>
+        <div id="cms-cfg-token-status" style="margin-top:8px; font-size:0.82rem; min-height:18px;"></div>
+        <div class="cms-form-help" style="margin-top:8px; line-height:1.45;">
+          Permite que el botón <strong>"Publicar en la Web"</strong> guarde los cambios directamente en tu GitHub sin tocar código.
           <br/><a href="https://github.com/settings/tokens/new?scopes=repo&description=Lovely+CMS+Editor" target="_blank" rel="noopener" style="color:var(--cms-primary); font-weight:700;">Crear token en GitHub (permiso 'repo') &rarr;</a>
         </div>
       </div>
     `;
 
+    const toggleBtn = document.getElementById('cms-cfg-toggle-token');
+    const tokenInput = document.getElementById('cms-cfg-token');
+    const testBtn = document.getElementById('cms-cfg-test-token');
+    const statusDiv = document.getElementById('cms-cfg-token-status');
+
+    if (toggleBtn && tokenInput) {
+      toggleBtn.addEventListener('click', () => {
+        if (tokenInput.type === 'password') {
+          tokenInput.type = 'text';
+          toggleBtn.textContent = '🔒';
+        } else {
+          tokenInput.type = 'password';
+          toggleBtn.textContent = '👁️';
+        }
+      });
+    }
+
+    if (testBtn && tokenInput) {
+      testBtn.addEventListener('click', async () => {
+        const clean = sanitizeGitHubToken(tokenInput.value);
+        if (!clean) {
+          statusDiv.innerHTML = '<span style="color:#e11d48; font-weight:700;">⚠️ Escribe o pega tu Token de GitHub primero.</span>';
+          return;
+        }
+        tokenInput.value = clean;
+        statusDiv.innerHTML = '<span style="color:#666;">⏳ Probando token en GitHub...</span>';
+        testBtn.disabled = true;
+
+        try {
+          const res = await fetch('https://api.github.com/user', {
+            headers: {
+              'Authorization': `Bearer ${clean}`,
+              'Accept': 'application/vnd.github.v3+json'
+            }
+          });
+
+          if (res.ok) {
+            const u = await res.json();
+            statusDiv.innerHTML = `<span style="color:#16a34a; font-weight:700;">✅ ¡Token válido! Conectado con usuario: <strong>@${u.login}</strong></span>`;
+            showToast(`✅ Conexión exitosa con GitHub (@${u.login})`, 'success', 3000);
+            // Guardar inmediatamente si fue exitoso
+            saveConfig({
+              adminPin: document.getElementById('cms-cfg-pin').value.trim() || '1234',
+              githubRepo: document.getElementById('cms-cfg-repo').value.trim() || 'pijamaslovely/lovely',
+              githubBranch: document.getElementById('cms-cfg-branch').value.trim() || 'main',
+              githubFilePath: 'index.html',
+              githubToken: clean
+            });
+          } else if (res.status === 401) {
+            statusDiv.innerHTML = '<span style="color:#e11d48; font-weight:700;">❌ Error 401: Token inválido o revocado. Verifica haberlo copiado completo.</span>';
+          } else {
+            statusDiv.innerHTML = `<span style="color:#e11d48; font-weight:700;">❌ Código de error GitHub: ${res.status}</span>`;
+          }
+        } catch (err) {
+          statusDiv.innerHTML = `<span style="color:#e11d48; font-weight:700;">❌ Error de conexión: ${err.message}</span>`;
+        } finally {
+          testBtn.disabled = false;
+        }
+      });
+    }
+
     document.getElementById('cms-modal-save-btn').onclick = function () {
       const newPin = document.getElementById('cms-cfg-pin').value.trim() || '1234';
       const newRepo = document.getElementById('cms-cfg-repo').value.trim() || 'pijamaslovely/lovely';
       const newBranch = document.getElementById('cms-cfg-branch').value.trim() || 'main';
-      const newToken = document.getElementById('cms-cfg-token').value.trim();
+      const rawToken = document.getElementById('cms-cfg-token').value;
+      const newToken = sanitizeGitHubToken(rawToken);
 
       saveConfig({
         adminPin: newPin,
@@ -1061,7 +1128,9 @@
   // Publicación directa en GitHub mediante GitHub API
   async function publishToGitHub() {
     const config = getConfig();
-    if (!config.githubToken) {
+    const token = sanitizeGitHubToken(config.githubToken);
+
+    if (!token) {
       showToast('⚠️ Debes ingresar tu Token de GitHub en Configuración (⚙️)', 'error', 4000);
       openSettingsModal();
       return;
@@ -1073,7 +1142,7 @@
     publishBtn.disabled = true;
 
     try {
-      const repo = config.githubRepo;
+      const repo = config.githubRepo || 'pijamaslovely/lovely';
       const branch = config.githubBranch || 'main';
       const path = config.githubFilePath || 'index.html';
       const apiUrl = `https://api.github.com/repos/${repo}/contents/${path}?ref=${branch}`;
@@ -1082,13 +1151,21 @@
       showToast('Obteniendo versión actual de GitHub...', 'info', 2000);
       const getRes = await fetch(apiUrl, {
         headers: {
-          'Authorization': `Bearer ${config.githubToken}`,
+          'Authorization': `Bearer ${token}`,
           'Accept': 'application/vnd.github.v3+json'
         }
       });
 
       if (!getRes.ok) {
-        throw new Error(`No se pudo leer el archivo en GitHub (Código: ${getRes.status})`);
+        if (getRes.status === 401) {
+          throw new Error('Error 401 (No autorizado / Bad credentials):\nTu Token de GitHub es incorrecto, expiró o no fue guardado en este navegador.\n\nAbre Configuración (⚙️), pega tu token: ghp_... y haz clic en "🔍 Probar" y "Guardar cambios".');
+        } else if (getRes.status === 404) {
+          throw new Error(`Error 404 (No encontrado):\nNo se encontró el archivo "${path}" en el repositorio "${repo}" rama "${branch}". Revisa los datos en Configuración (⚙️).`);
+        } else if (getRes.status === 403) {
+          throw new Error('Error 403 (Permiso denegado):\nTu token de GitHub no tiene permisos suficientes. Asegúrate de crearlo con la casilla "repo" marcada.');
+        } else {
+          throw new Error(`No se pudo leer el archivo en GitHub (Código: ${getRes.status})`);
+        }
       }
 
       const fileData = await getRes.json();
@@ -1103,7 +1180,7 @@
       const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${config.githubToken}`,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
           'Accept': 'application/vnd.github.v3+json'
         },
@@ -1117,13 +1194,13 @@
 
       if (!putRes.ok) {
         const errorData = await putRes.json();
-        throw new Error(errorData.message || 'Error al guardar en GitHub');
+        throw new Error(errorData.message || `Error al guardar en GitHub (Código ${putRes.status})`);
       }
 
       showToast('🎉 ¡Publicado con éxito! Tu sitio se actualizará en ~30 segundos.', 'success', 6000);
     } catch (err) {
       console.error(err);
-      alert(`❌ Error al publicar en GitHub:\n${err.message}\n\nRevisa tu Token y permisos en el botón de Configuración (⚙️).`);
+      alert(`❌ Error al publicar en GitHub:\n\n${err.message}`);
       showToast('Error al publicar en GitHub', 'error');
     } finally {
       publishBtn.innerHTML = originalText;
