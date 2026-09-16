@@ -185,8 +185,8 @@
     document.addEventListener('click', function (e) {
       if (!isEditMode || isPreviewMode) return;
 
-      // Ignorar clics dentro de la barra o modales del CMS
-      if (e.target.closest('#lovely-cms-bar') || e.target.closest('#cms-modal-overlay') || e.target.closest('.cms-admin-trigger')) {
+      // Ignorar clics dentro de la barra, modales o botón de añadir del CMS
+      if (e.target.closest('#lovely-cms-bar') || e.target.closest('#cms-modal-overlay') || e.target.closest('.cms-admin-trigger') || e.target.closest('.cms-add-card')) {
         return;
       }
 
