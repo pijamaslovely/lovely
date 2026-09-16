@@ -323,6 +323,67 @@ body.cms-active:not(.cms-preview-mode) [data-cms]:hover::after {
   font-size: 0.9rem;
 }
 
+/* 3.1. BOTÓN / TARJETA AÑADIR PRODUCTO (+) */
+.cms-add-card {
+  display: none;
+  min-height: 380px;
+  border: 3px dashed var(--cms-primary);
+  border-radius: var(--border-radius, 20px);
+  background: rgba(233, 30, 140, 0.03);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 30px 20px;
+  box-sizing: border-box;
+}
+
+body.cms-active:not(.cms-preview-mode) .cms-add-card {
+  display: flex !important;
+}
+
+.cms-add-card:hover {
+  background: rgba(233, 30, 140, 0.08);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(233, 30, 140, 0.22);
+  border-color: var(--cms-primary-dark);
+}
+
+.cms-add-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--cms-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  margin: 0 auto 16px;
+  box-shadow: 0 6px 20px rgba(233, 30, 140, 0.38);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cms-add-card:hover .cms-add-icon {
+  transform: scale(1.15) rotate(90deg);
+}
+
+.cms-add-title {
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: var(--cms-primary-dark);
+  margin-bottom: 6px;
+}
+
+.cms-add-desc {
+  font-size: 0.85rem;
+  color: #777;
+  max-width: 220px;
+  margin: 0 auto;
+  line-height: 1.4;
+}
+
 /* 4. DISCREET ADMIN TRIGGER IN FOOTER */
 .cms-admin-trigger {
   display: inline-flex;

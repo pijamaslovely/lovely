@@ -129,6 +129,7 @@
     document.body.classList.remove('cms-preview-mode');
     document.getElementById('lovely-cms-bar').classList.add('active');
     updatePreviewButtonState();
+    ensureAddCardButton();
     showToast('✨ Modo Editor activado. Haz clic en cualquier sección o texto para cambiarlo.', 'success', 4000);
   }
 
@@ -711,11 +712,30 @@
         <label class="cms-form-label">Texto del botón:</label>
         <input type="text" id="cms-prod-btn-text" class="cms-input" value="${escapeHtml(btnText)}"/>
       </div>
-      <div class="cms-form-group">
+      <div class="cms-form-group" style="margin-bottom:0;">
         <label class="cms-form-label">Enlace al catálogo / WhatsApp:</label>
         <input type="text" id="cms-prod-btn-href" class="cms-input" value="${escapeHtml(btnHref)}"/>
       </div>
+
+      <!-- BOTÓN ELIMINAR PRODUCTO -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; padding-top:14px; border-top:1.5px solid #fce4f0;">
+        <button type="button" id="cms-delete-product-btn" class="cms-btn" style="background:#fff0f2; color:#ff334b; border:1px solid #ffccd2;">
+          <span>🗑️</span> <span>Eliminar este producto</span>
+        </button>
+        <span style="font-size:0.75rem; color:#888;">Quita esta caja de la colección</span>
+      </div>
     `;
+
+    const deleteBtn = document.getElementById('cms-delete-product-btn');
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', function () {
+        if (confirm('¿Estás seguro de que deseas eliminar este producto de la colección?')) {
+          el.remove();
+          closeModal();
+          showToast('🗑️ Producto eliminado.', 'info');
+        }
+      });
+    }
 
     const prodImgPreview = document.getElementById('cms-prod-img-preview');
     const prodImgInput = document.getElementById('cms-prod-img');
@@ -1000,6 +1020,7 @@
     if (cmsModal) cmsModal.remove();
     const cmsToast = docClone.querySelector('#cms-toast');
     if (cmsToast) cmsToast.remove();
+    docClone.querySelectorAll('.cms-add-card').forEach(c => c.remove());
 
     // Obtener string final HTML5
     const htmlString = '<!DOCTYPE html>\n' + docClone.outerHTML;
@@ -1112,6 +1133,67 @@
       .replace(/'/g, '&#39;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
+  }
+
+  // Asegurar botón (+) para añadir productos
+  function ensureAddCardButton() {
+    const grid = document.querySelector('.products-grid');
+    if (grid && !grid.querySelector('.cms-add-card')) {
+      const addCard = document.createElement('div');
+      addCard.className = 'cms-add-card';
+      addCard.id = 'cms-add-product-btn';
+      addCard.innerHTML = `
+        <div class="cms-add-card-inner">
+          <div class="cms-add-icon">➕</div>
+          <div class="cms-add-title">Añadir Pijama</div>
+          <div class="cms-add-desc">Haz clic para agregar otra caja a la colección</div>
+        </div>
+      `;
+      addCard.addEventListener('click', handleAddNewProduct);
+      grid.appendChild(addCard);
+    }
+  }
+
+  // Crear nueva tarjeta de producto en el mismo orden y estructura
+  function handleAddNewProduct() {
+    const grid = document.querySelector('.products-grid');
+    const addBtn = document.getElementById('cms-add-product-btn');
+    if (!grid) return;
+
+    const count = grid.querySelectorAll('.product-card').length + 1;
+    const newCard = document.createElement('div');
+    newCard.className = 'product-card';
+    newCard.setAttribute('data-cms', `prod-card-${Date.now()}`);
+    newCard.setAttribute('data-cms-label', `Pijama ${count}`);
+    newCard.setAttribute('data-cms-type', 'card');
+    newCard.innerHTML = `
+      <div class="product-img-wrap">
+        <img src="1Carrusel.jpg" alt="Nueva Pijama ${count}" loading="lazy"/>
+        <span class="product-badge">✨ Nueva</span>
+      </div>
+      <div class="product-info">
+        <h3>Nueva Pijama ${count}</h3>
+        <p>Descripción de la pijama · Tallas · Colores</p>
+        <div class="product-cta">
+          <a href="https://pijamasalmayor.com/lovely" class="product-wa-btn" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm7 17H5V8h14v12zm-7-8c-1.66 0-3-1.34-3-3H7c0 2.76 2.24 5 5 5s5-2.24 5-5h-2c0 1.66-1.34 3-3 3z"/></svg>
+            <span>Ver catálogo digital</span>
+          </a>
+        </div>
+      </div>
+    `;
+
+    // Insertar justo antes del botón (+) en la cuadrícula
+    if (addBtn) {
+      grid.insertBefore(newCard, addBtn);
+    } else {
+      grid.appendChild(newCard);
+    }
+
+    showToast('✨ Nueva caja agregada. Modifica sus datos ahora.', 'info', 3000);
+
+    // Abrir inmediatamente la ventana de edición para que configure la foto y el texto
+    openEditorForElement(newCard);
   }
 
 })();
